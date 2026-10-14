@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Barcelona Veggie Slot Machine</title>
+<style>
+:root{
+  --bg:#f4f1ea;
+  --panel:#fffdf8;
+  --ink:#171717;
+  --muted:#6d6a63;
+  --line:#d7d1c7;
+  --accent:#1f7a4d;
+  --accent2:#e7f4ec;
+  --gold:#d9b35c;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+}
+.wrap{
+  max-width:980px;
+  margin:0 auto;
+  padding:24px 16px 40px;
+}
+.header{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px;
+}
+h1{
+  margin:0;
+  font-size:clamp(28px,5vw,48px);
+  line-height:1;
+}
+.sub{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:14px;
+}
+.machine{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:26px;
+  padding:18px;
+}
+.reels{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+.reel-wrap{
+  min-width:0;
+}
+.reel-label{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  color:var(--muted);
+  font-weight:800;
+  margin-bottom:7px;
+}
+.reel{
+  position:relative;
+  height:132px;
+  overflow:hidden;
+  border:2px solid var(--ink);
+  border-radius:18px;
+  background:#fff;
+}
+.reel:before,.reel:after{
+  content:"";
+  position:absolute;
+  left:0;right:0;
+  height:34px;
+  z-index:2;
+  pointer-events:none;
+}
+.reel:before{top:0;background:linear-gradient(#fff,rgba(255,255,255,0))}
+.reel:after{bottom:0;background:linear-gradient(rgba(255,255,255,0),#fff)}
+.reel-track{
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  transform:translateY(0);
+}
+.reel-item{
+  height:132px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  text-align:center;
+  font-weight:900;
+  font-size:clamp(18px,3vw,30px);
+  line-height:1.05;
+}
+.reel-item.small{
+  font-size:clamp(16px,2.2vw,22px);
+}
+.controls{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+button{
+  min-height:48px;
+  padding:12px 20px;
+  border-radius:14px;
+  border:1px solid var(--ink);
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+}
+.primary{
+  background:var(--ink);
+  color:white;
+}
+.secondary{
+  background:white;
+  color:var(--ink);
+}
+button:disabled{
+  cursor:not-allowed;
+  opacity:.55;
+}
+.result{
+  margin-top:18px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  padding:18px;
+}
+.result-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 9px;
+  border-radius:999px;
+  background:var(--accent2);
+  color:var(--accent);
+  font-size:12px;
+  font-weight:900;
+}
+.name{
+  font-size:26px;
+  font-weight:950;
+  margin-top:9px;
+}
+.address{
+  color:var(--muted);
+  margin-top:7px;
+}
+.map{
+  display:inline-flex;
+  margin-top:12px;
+  color:var(--ink);
+  font-weight:800;
+  text-decoration:none;
+  border-bottom:1px solid var(--ink);
+}
+.note{
+  margin-top:14px;
+  color:var(--muted);
+  font-size:13px;
+}
+.filters{
+  margin-top:16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  font-size:14px;
+}
+.filters label{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.footer{
+  margin-top:16px;
+  font-size:12px;
+  color:var(--muted);
+}
+@media(max-width:700px){
+  .header{align-items:flex-start;flex-direction:column}
+  .reels{grid-template-columns:1fr}
+  .reel{height:104px}
+  .reel-item{height:104px}
+}
+@media (prefers-reduced-motion: reduce){
+  *{scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div>
+      <h1>Barcelona Veggie Slots</h1>
+      <p class="sub">Area → Type → Restaurant. Spin once and let fate pick dinner.</p>
+    </div>
+  </div>
+
+  <div class="machine">
+    <div class="reels">
+      <div class="reel-wrap">
+        <div class="reel-label">Reel 1 · Location</div>
+        <div class="reel"><div id="trackArea" class="reel-track"></div></div>
+      </div>
+      <div class="reel-wrap">
+        <div class="reel-label">Reel 2 · Type</div>
+        <div class="reel"><div id="trackType" class="reel-track"></div></div>
+      </div>
+      <div class="reel-wrap">
+        <div class="reel-label">Reel 3 · Place</div>
+        <div class="reel"><div id="trackPlace" class="reel-track"></div></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="spinBtn" class="primary" type="button">🎰 SPIN</button>
+      <button id="againBtn" class="secondary" type="button">Spin again</button>
+    </div>
+
+    <div class="filters">
+      <label><input id="allowVegan" type="checkbox" checked> 🏴‍☠️ Vegan</label>
+      <label><input id="allowVegetarian" type="checkbox" checked> 🌱 Vegetarian</label>
+    </div>
+
+    <div id="result" class="result" aria-live="polite">
+      <div class="badge">Ready</div>
+      <div class="name">Spin to pick a restaurant</div>
+      <div class="address">The reels will only land on combinations that exist in the list.</div>
+    </div>
+
+    <div class="note">
+      The machine first chooses a Barcelona area, then a food type, then a restaurant matching both. If only one category is enabled, Reel 2 will always use that category.
+    </div>
+  </div>
+
+  <div class="footer">🏴‍☠️ = fully vegan · 🌱 = vegetarian / plant-focused</div>
+</div>
+
+<script>
+const restaurants = [
+  {n:'Mad Mad Vegan',a:"Carrer d'Aribau, 65, 08008 Barcelona",t:'vegan',area:'Eixample'},
+  {n:'UMAMI PLANT BASED',a:'Carrer del Progrés, 6, 08012 Barcelona',t:'vegan',area:'Gràcia'},
+  {n:'Vegan Mount',a:'Carrer de València, 506, 08013 Barcelona',t:'vegan',area:'Eixample'},
+  {n:'Vegan Tulsi',a:'Carrer dels Àngels, 8, 08001 Barcelona',t:'vegan',area:'Raval'},
+  {n:'Bubita Bar',a:'Carrer dels Flassaders, 15, 08003 Barcelona',t:'vegan',area:'El Born'},
+  {n:'Vegan Cat Bar',a:'Carrer de la Mercè, 29, 08002 Barcelona',t:'vegan',area:'Gothic Quarter'},
+  {n:'Santa Vegana',a:"Carrer de n'Arai, 1, 08002 Barcelona",t:'vegan',area:'Gothic Quarter'},
+  {n:'La Perra Verde',a:"Carrer del Torrent de l'Olla, 12, 08012 Barcelona",t:'vegan',area:'Gràcia'},
+  {n:'Velada',a:'Carrer de Ferran, 25, 08002 Barcelona',t:'vegan',area:'Gothic Quarter'},
+  {n:'Mundo Vegan',a:'Carrer de Muntaner, 106, 08036 Barcelona',t:'vegan',area:'Eixample'},
+  {n:'Desoriente Poblenou',a:'Carrer de Ramon Turró, 209, 08005 Barcelona',t:'vegan',area:'Poblenou'},
+  {n:'Desoriente Eixample',a:'Carrer de València, 201, 08011 Barcelona',t:'vegan',area:'Eixample'},
+  {n:'Blu Bar',a:'Rambla del Poblenou, 11, 08005 Barcelona',t:'vegan',area:'Poblenou'},
+  {n:'Vrutal Poblenou',a:'Rambla del Poblenou, 16, Bajos 4, 08005 Barcelona',t:'vegan',area:'Poblenou'},
+  {n:'Vrutal Diputació',a:'Carrer de la Diputació, 200, 08011 Barcelona',t:'vegan',area:'Eixample'},
+  {n:'Gallo Santo',a:"Carrer del Torrent de l'Olla, 64, 08012 Barcelona",t:'vegan',area:'Gràcia'},
+  {n:'Good Shit Vegan Kebabs',a:"Carrer del Torrent de l'Olla, 138, 08012 Barcelona",t:'vegan',area:'Gràcia'},
+  {n:'Noush',a:"Carrer d'Olzinelles, 100, 08014 Barcelona",t:'vegan',area:'Sants'},
+  {n:'PÖTSTOT',a:'Carrer de València, 204, 08011 Barcelona',t:'vegan',area:'Eixample'},
+  {n:'Veganashi',a:'Carrer de Lleida, 33, 08004 Barcelona',t:'vegan',area:'Poble-sec'},
+  {n:'Alive Restaurant',a:'Travessera de les Corts, 180, 08028 Barcelona',t:'vegan',area:'Les Corts'},
+  {n:'Falafel Pedralbes',a:'Carrer de Jordi Girona, 12, 08034 Barcelona',t:'vegan',area:'Pedralbes'},
+  {n:'Macrobiotic Zen',a:'Carrer de Muntaner, 12, 08011 Barcelona',t:'vegan',area:'Eixample'},
+  {n:'Morgentau',a:'Carrer de la Llacuna, 114, 08018 Barcelona',t:'vegan',area:'Poblenou'},
+  {n:'Fat Veggies',a:'Carrer de Bailèn, 83, 08009 Barcelona',t:'vegetarian',area:'Eixample'},
+  {n:'Veg World India',a:'Carrer de Bruniquer, 24, 08012 Barcelona',t:'vegetarian',area:'Gràcia'},
+  {n:'Vegetalia Born',a:'Plaça del Fossar de les Moreres, 08003 Barcelona',t:'vegetarian',area:'El Born'},
+  {n:'Teresa Carles',a:'Carrer de Jovellanos, 2, 08001 Barcelona',t:'vegetarian',area:'Raval'},
+  {n:'Aguaribay',a:'Carrer de Galceran Marquet, 1, 08005 Barcelona',t:'vegetarian',area:'Poblenou'},
+  {n:'Sopa Barcelona',a:'Carrer de Roc Boronat, 114, 08018 Barcelona',t:'vegetarian',area:'Poblenou'},
+  {n:'Copasetic',a:'Carrer de la Diputació, 55, 08015 Barcelona',t:'vegetarian',area:'Sant Antoni'},
+  {n:'Nabucco Obrador',a:'Carrer de la Fraternitat, 31, 08012 Barcelona',t:'vegetarian',area:'Gràcia'}
+];
+
+const tracks = {
+  area: document.getElementById('trackArea'),
+  type: document.getElementById('trackType'),
+  place: document.getElementById('trackPlace')
+};
+const result = document.getElementById('result');
+const spinBtn = document.getElementById('spinBtn');
+const againBtn = document.getElementById('againBtn');
+const allowVegan = document.getElementById('allowVegan');
+const allowVegetarian = document.getElementById('allowVegetarian');
+
+let spinning = false;
+
+function iconType(t){ return t === 'vegan' ? '🏴‍☠️ Vegan' : '🌱 Vegetarian'; }
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function enabledTypes(){
+  const out=[];
+  if(allowVegan.checked) out.push('vegan');
+  if(allowVegetarian.checked) out.push('vegetarian');
+  return out;
+}
+
+function candidates(){
+  const types=enabledTypes();
+  return restaurants.filter(r=>types.includes(r.t));
+}
+
+function ensureSelection(){
+  const c=candidates();
+  if(!c.length) return null;
+
+  const validAreas=[...new Set(c.map(r=>r.area))];
+  const area=rand(validAreas);
+
+  const areaRestaurants=c.filter(r=>r.area===area);
+  const validTypes=[...new Set(areaRestaurants.map(r=>r.t))];
+  const type=rand(validTypes);
+
+  const matching=areaRestaurants.filter(r=>r.t===type);
+  const place=rand(matching);
+
+  return {area,type,place};
+}
+
+function fillTrack(el, values, finalText, small=false){
+  el.innerHTML='';
+  const sequence=[];
+  for(let i=0;i<12;i++) sequence.push(rand(values));
+  sequence.push(finalText);
+
+  sequence.forEach(v=>{
+    const div=document.createElement('div');
+    div.className='reel-item'+(small?' small':'');
+    div.textContent=v;
+    el.appendChild(div);
+  });
+  return sequence.length;
+}
+
+function itemHeight(){
+  return window.matchMedia('(max-width:700px)').matches ? 104 : 132;
+}
+
+function animateTrack(el, count, duration, delay){
+  const h=itemHeight();
+  el.style.transition='none';
+  el.style.transform='translateY(0)';
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      el.style.transition=`transform ${duration}ms cubic-bezier(.12,.72,.18,1) ${delay}ms`;
+      el.style.transform=`translateY(-${(count-1)*h}px)`;
+    });
+  });
+}
+
+function showResult(sel){
+  const r=sel.place;
+  result.innerHTML=`
+    <div class="result-top">
+      <div>
+        <div class="badge">${iconType(r.t)} · ${r.area}</div>
+        <div class="name">${r.n}</div>
+        <div class="address">${r.a}</div>
+        <a class="map" target="_blank" rel="noopener noreferrer"
+           href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.n+' '+r.a)}">Open in Google Maps ↗</a>
+      </div>
+    </div>`;
+}
+
+function spin(){
+  if(spinning) return;
+  const sel=ensureSelection();
+  if(!sel){
+    result.innerHTML='<div class="badge">No category selected</div><div class="name">Enable Vegan, Vegetarian, or both.</div>';
+    return;
+  }
+
+  spinning=true;
+  spinBtn.disabled=true;
+  againBtn.disabled=true;
+
+  const c=candidates();
+  const areas=[...new Set(c.map(r=>r.area))];
+  const types=enabledTypes().map(iconType);
+  const placeNames=c.map(r=>r.n);
+
+  const aCount=fillTrack(tracks.area,areas,sel.area);
+  const tCount=fillTrack(tracks.type,types,iconType(sel.type));
+  const pCount=fillTrack(tracks.place,placeNames,sel.place.n,true);
+
+  animateTrack(tracks.area,aCount,950,0);
+  animateTrack(tracks.type,tCount,1200,180);
+  animateTrack(tracks.place,pCount,1500,380);
+
+  result.innerHTML='<div class="badge">Spinning...</div><div class="name">Choosing dinner</div>';
+
+  setTimeout(()=>{
+    showResult(sel);
+    spinning=false;
+    spinBtn.disabled=false;
+    againBtn.disabled=false;
+  },2050);
+}
+
+spinBtn.addEventListener('click',spin);
+againBtn.addEventListener('click',spin);
+
+[allowVegan,allowVegetarian].forEach(cb=>{
+  cb.addEventListener('change',()=>{
+    if(!allowVegan.checked && !allowVegetarian.checked){
+      result.innerHTML='<div class="badge">Choose a category</div><div class="name">Enable Vegan, Vegetarian, or both.</div>';
+    }
+  });
+});
+
+window.addEventListener('resize',()=>{
+  // Keep reel height aligned after responsive changes by resetting to first item.
+  Object.values(tracks).forEach(el=>{
+    el.style.transition='none';
+    el.style.transform='translateY(0)';
+  });
+});
+</script>
+</body>
+</html>
